@@ -4,7 +4,7 @@ body {
     margin: 0px;
 }
 
-button#button-redraw {
+#div-controls {
     position: absolute;
     right: 30px;
     top: 30px;

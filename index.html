@@ -5,7 +5,15 @@
         <script type="text/javascript" src="fragmental.js"></script>
     </head>
     <body onload="main('canvas-app')">
-        <canvas id="canvas-app" width="800px" height="600px"></canvas>
-        <button id="button-redraw" onclick="redraw()">Redraw</button>
+        <canvas id="canvas-app" width="640px" height="480px"></canvas>
+        <div id="div-controls">
+            <div>
+                <button id="button-redraw" onclick="redraw()">Redraw</button>
+            </div>
+            <div>
+                <span>Zoom</span>
+                <input id="range-zoom" type="range" max="1000" id="input-redraw"/>
+            </div>
+        </div>
     </body>
 </html>
