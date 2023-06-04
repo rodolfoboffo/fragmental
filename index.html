@@ -4,15 +4,19 @@
         <link rel="stylesheet" type="text/css" href="fragmental.css"/>
         <script type="text/javascript" src="fragmental.js"></script>
     </head>
-    <body onload="main('canvas-app')">
+    <body onload="initialize()">
         <canvas id="canvas-app" width="640px" height="480px"></canvas>
         <div id="div-controls">
             <div>
-                <button id="button-redraw" onclick="redraw()">Redraw</button>
+                <button id="button-redraw">Redraw</button>
             </div>
             <div>
                 <span>Zoom</span>
-                <input id="range-zoom" type="range" max="1000" id="input-redraw"/>
+                <input id="range-zoom" type="range" min="0" max="1000" value="10"/>
+            </div>
+            <div>
+                <span>Quality</span>
+                <input id="range-quality" type="range" max="300" value="1"/>
             </div>
         </div>
     </body>
