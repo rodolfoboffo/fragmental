@@ -71,7 +71,8 @@ class NewtonRhapsonMethod {
 
 class NewtonBasins {
     constructor(options) {
-        this.zoom = options && options.zoom || 100;
+        this.zoom = options && options.zoom || 100.0;
+        this.zoomExponent = options && options.zoomExponent || 2.0;
         this.quality = options && options.quality || 0.2;
         this.center = options && options.center || new Complex();
         this.newtonRhapson = new NewtonRhapsonMethod();
@@ -93,8 +94,9 @@ class NewtonBasins {
         this.redraw();
     }
 
-    setZoom(rate) {
-        this.zoom = 1 + 1000 * rate;
+    setZoomExponent(zoomExp) {
+        this.zoomExponent = zoomExp;
+        this.zoom = Math.pow(10.0, this.zoomExponent);
         this.clearImageArray();
         this.redraw();
     }
@@ -170,12 +172,14 @@ class NewtonBasins {
     }
 
     getPixelCoordByQuality(i, j, width, height, quality) {
-        let widthDivs = Math.max(Math.ceil(width * quality), 1);
-        let wDivLength = Math.floor(width / widthDivs);
-        let qi = Math.floor(i / wDivLength) * wDivLength;
-        let heightDivs = Math.max(Math.ceil(height * quality), 1);
-        let hDivLength = Math.floor(height / heightDivs);
-        let qj = Math.floor(j / hDivLength) * hDivLength;
+        let maxQuality = ((width / 2) + 1) / width;
+        quality = quality * maxQuality;
+        let nHorizontalDivs = Math.max(Math.ceil(width * quality), 1);
+        let horizontalDivLength = Math.floor(width / nHorizontalDivs);
+        let qi = Math.floor(i / horizontalDivLength) * horizontalDivLength;
+        let nVerticalDivs = Math.max(Math.ceil(height * quality), 1);
+        let verticalDivLength = Math.floor(height / nVerticalDivs);
+        let qj = Math.floor(j / verticalDivLength) * verticalDivLength;
         return [qi, qj];
     }
 
@@ -267,9 +271,19 @@ function setupListeners() {
         qualityRange.addEventListener("change", updateQualityFromEvent);
     }
 
-    let zoomRange = document.getElementById('range-zoom')
-    if (zoomRange != null) {
-        zoomRange.addEventListener("change", updateZoomFromEvent);
+    let zoomExp = document.getElementById('input-zoom-exp')
+    if (zoomExp != null) {
+        zoomExp.addEventListener("change", updateZoomExpFromEvent);
+    }
+
+    let zoomInButton = document.getElementById('button-zoom-in')
+    if (zoomInButton != null) {
+        zoomInButton.addEventListener("click", zoomIn);
+    }
+
+    let zoomOutButton = document.getElementById('button-zoom-out')
+    if (zoomOutButton != null) {
+        zoomOutButton.addEventListener("click", zoomOut);
     }
 
     let canvas = document.getElementById('canvas-app')
@@ -285,16 +299,8 @@ function onMouseDownCanvas(e) {
 }
 
 function onWheelCanvas(e) {
-    let el = document.getElementById('range-zoom');
-    if (el != null) {
-        let zoomIncr = e.deltaY >= 0 ? 1 : -1;
-        let currentValue = parseInt(el.value)
-        let minValue = parseInt(el.min)
-        let maxValue = parseInt(el.max)
-        let newValue = Math.min(Math.max(currentValue - zoomIncr * 10, minValue), maxValue);
-        el.value = newValue.toString();
-        el.dispatchEvent(new Event("change"));
-    }
+    let zoomIncr = e.deltaY >= 0 ? -1 : 1;
+    zoom(zoomIncr)
 }
 
 function redraw(e) {
@@ -303,7 +309,7 @@ function redraw(e) {
 
 function initializeParameters() {
     updateQuality();
-    updateZoom();
+    updateZoomExp();
 }
 
 function updateQuality() {
@@ -324,22 +330,40 @@ function updateQualityFromElement(el) {
     n.setQuality(rate);
 }
 
-function updateZoom() {
-    let el = document.getElementById('range-zoom');
+function updateZoomExp() {
+    let el = document.getElementById('input-zoom-exp');
     if (el != null) {
-        updateZoomFromElement(el);
+        updateZoomExpFromElement(el);
     }
 }
 
-function updateZoomFromEvent(e) {
-    updateZoomFromElement(e.srcElement);
+function updateZoomExpFromEvent(e) {
+    updateZoomExpFromElement(e.srcElement);
 }
 
-function updateZoomFromElement(el) {
-    let max = parseInt(el.max);
-    let value = parseInt(el.value);
-    let rate = value / max;
-    n.setZoom(rate);
+function updateZoomExpFromElement(el) {
+    let value = parseFloat(el.value);
+    n.setZoomExponent(value);
+}
+
+function zoomIn() {
+    return zoom(1)
+}
+
+function zoomOut() {
+    return zoom(-1)
+}
+
+function zoom(inOut) {
+    let el = document.getElementById('input-zoom-exp');
+    if (el != null) {
+        let step = parseFloat(el.step);
+        let value = parseFloat(el.value);
+        inOut = inOut >=0 ? 1 : -1;
+        value = (inOut * step) + value;
+        el.value = value.toString();
+        el.dispatchEvent(new Event("change"))
+    }
 }
 
 function resizeCanvas(canvas) {

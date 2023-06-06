@@ -2,10 +2,35 @@ body {
     width: 100%;
     height: 100%;
     margin: 0px;
+    background-color: black;
+}
+
+span {
+    color: white;
+}
+
+#input-zoom-exp {
+    width: 4em;
 }
 
 #div-controls {
     position: absolute;
-    right: 30px;
-    top: 30px;
+    background-color: #000000CC;
+    right: 1vh;
+    top: 1vh;
+    padding: 1vh;
+    border-radius: 1vh;
+    font-family: sans-serif;
+}
+
+#div-controls * {
+    margin: 0.2vh;
+}
+
+#div-controls div * {
+    vertical-align: middle;
+}
+
+#button-redraw {
+    width: 100%;
 }
