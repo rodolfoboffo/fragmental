@@ -91,19 +91,16 @@ class NewtonBasins {
         let newCenter = this.getComplexCoordFromPixel(col, row);
         this.center = newCenter;
         this.clearImageArray();
-        this.redraw();
     }
 
     setZoomExponent(zoomExp) {
         this.zoomExponent = zoomExp;
         this.zoom = Math.pow(10.0, this.zoomExponent);
         this.clearImageArray();
-        this.redraw();
     }
 
     setQuality(quality) {
         this.quality = quality;
-        this.redraw();
     }
 
     setFunction(f) {
@@ -278,29 +275,32 @@ function setupListeners() {
 
     let zoomInButton = document.getElementById('button-zoom-in')
     if (zoomInButton != null) {
-        zoomInButton.addEventListener("click", zoomIn);
+        zoomInButton.addEventListener("click", zoomInFromEvent);
     }
 
     let zoomOutButton = document.getElementById('button-zoom-out')
     if (zoomOutButton != null) {
-        zoomOutButton.addEventListener("click", zoomOut);
+        zoomOutButton.addEventListener("click", zoomOutFromEvent);
     }
 
     let canvas = document.getElementById('canvas-app')
     if (canvas != null) {
         canvas.addEventListener("wheel", onWheelCanvas);
-        canvas.addEventListener("dblclick", onMouseDownCanvas);
+        canvas.addEventListener("dblclick", onDblClickCanvas);
     }
 }
 
-function onMouseDownCanvas(e) {
+function onDblClickCanvas(e) {
     e.preventDefault();
     n.centerInPixel(e.x, e.y);
+    redraw();
 }
 
 function onWheelCanvas(e) {
     let zoomIncr = e.deltaY >= 0 ? -1 : 1;
+    n.centerInPixel(e.x, e.y);
     zoom(zoomIncr)
+    redraw();
 }
 
 function redraw(e) {
@@ -321,6 +321,7 @@ function updateQuality() {
 
 function updateQualityFromEvent(e) {
     updateQualityFromElement(e.srcElement);
+    redraw();
 }
 
 function updateQualityFromElement(el) {
@@ -339,6 +340,7 @@ function updateZoomExp() {
 
 function updateZoomExpFromEvent(e) {
     updateZoomExpFromElement(e.srcElement);
+    redraw();
 }
 
 function updateZoomExpFromElement(el) {
@@ -346,12 +348,14 @@ function updateZoomExpFromElement(el) {
     n.setZoomExponent(value);
 }
 
-function zoomIn() {
-    return zoom(1)
+function zoomInFromEvent() {
+    zoom(1);
+    redraw();
 }
 
-function zoomOut() {
-    return zoom(-1)
+function zoomOutFromEvent() {
+    zoom(-1)
+    redraw();
 }
 
 function zoom(inOut) {
@@ -361,8 +365,8 @@ function zoom(inOut) {
         let value = parseFloat(el.value);
         inOut = inOut >=0 ? 1 : -1;
         value = (inOut * step) + value;
-        el.value = value.toString();
-        el.dispatchEvent(new Event("change"))
+        el.value = value.toFixed(1);
+        updateZoomExpFromElement(el);
     }
 }
 
